@@ -6,7 +6,8 @@
 var express = require('express'),
     //routes = require('./routes'),
     http = require('http'),
-    path = require('path');
+    path = require('path'),
+    redis;
 
 var app = express();
 
@@ -39,10 +40,23 @@ app.post('/', function(req, res){
 
 app.get('/w/:location', function(req, res) {
   console.log('Will render location', req.params.location);
+
+
+
 });
 
 
 // Create server
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
+
+  if (process.env.REDISTOGO_URL) {
+    var rtg   = require("url").parse(process.env.REDISTOGO_URL);
+    redis = require("redis").createClient(rtg.port, rtg.hostname);
+
+    redis.auth(rtg.auth.split(":")[1]);
+  } else {
+    redis = require("redis").createClient();
+  }
+
 });
