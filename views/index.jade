@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  section
+    p A weather widget for your website. Generate script to add to your page.
+    p Weather forecast from <a href="http://yr.no">yr.no</a>, delivered by the Norwegian Meteorological Institute and the NRK.
+
+    form
+      p
+        label Enter URL to forecast
+        input(type="text", placeholder="Ex: http://www.yr.no/place/Sweden/Stockholm/Stockholm/")
+  
+      p
+        label Choose type of forecast
+        label.radio
+          input(type="radio", name="type", value="overview", checked="checked") 
+          | Overview
+        label.radio
+          input(type="radio", name="type", value="hourly") 
+          | Hour-by-hour
+        label.radio
+          input(type="radio", name="type", value="longTerm") 
+          | Long-term
+      
+      p
+        label Language
+        label.radio
+          input(type="radio", name="lang", value="eng", checked="checked") 
+          | English
+        label.radio
+          input(type="radio", name="lang", value="swe") 
+          | Swedish
+
+      p
+        input(type="submit", value="Generate widget").btn
+
+    footer: p
+      | 
+
