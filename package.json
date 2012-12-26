@@ -9,7 +9,9 @@
     "express": "3.0.5",
     "jade": "*",
     "less-middleware": "*",
-    "redis": "*"
+    "redis": "*",
+    "xml2js": "*",
+    "moment": "*"
   },
   "engines": {
     "node": "0.8.x",

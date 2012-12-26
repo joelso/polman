@@ -1,14 +1,12 @@
-
-/**
- * Module dependencies.
- */
-
 var express = require('express'),
     //routes = require('./routes'),
     http = require('http'),
     path = require('path'),
+    xml2js = require('xml2js'),
+    moment = require('moment'),
     redis,
-    Cache;
+    Cache,
+    YR;
 
 // How long we keep weather data in cache
 var WEATHER_CACHE_TTL = 60*15;
@@ -33,16 +31,27 @@ app.configure('development', function(){
 });
 
 
+
 // Routes and handlers
 app.get('/', function(req, res){
-  res.render('index', { title: 'Express' });
+  res.render('index');
 });
 
 app.post('/', function(req, res){
   res.send('creating');
 });
 
-app.get('/w', function(req, res) {
+// Render weather widget wrapped in
+// javascript document.write
+app.get('/weather/widget', function(req, res) {
+  var weatherUrl = req.query.url,
+      type = req.query.type || "overview";
+
+  res.send("Weather as a js widget with document.write etc...");
+});
+
+// Render weather widget as plain HTML
+app.get('/weather', function(req, res) {
   var weatherUrl = req.query.url;
 
   if(!weatherUrl) {
@@ -51,55 +60,77 @@ app.get('/w', function(req, res) {
 
   weatherUrl = weatherUrl.replace('http://', '');
 
-  Cache.getOrFetch(weatherUrl, function(err, xml) {
+  Cache.getOrFetch(weatherUrl, function(err, forecast) {
     if(err) {
-      res.send("TODO: Proper err response");
+      res.send(err);
     }
-    res.send(xml);
+    res.render('weather', {forecast: forecast, num: 10, moment: moment});
   });
 });
+
 
 
 // Create server
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
   Cache.initialize();
+  YR.initialize();
 });
 
 
-// YR Client
+
+// YR client for fetching and parsing data from
+// yr.no's web service.
 YR = {
 
+  initialize: function() {
+    this.parser = new xml2js.Parser({ mergeAttrs: true, explicitArray: false });
+  },
+
+  // Fetch weather data from given url
   fetch: function(url, cb) {
-    http.get(this.parseUrl(url), function(res) {
-      var str = '';
+    var that = this;
+
+    http.get({
+      host: 'www.yr.no',
+      path: url.slice(url.indexOf('/'), url.length)
+    }, onResponse).end();
+
+    function onResponse(res) {
+      var body = '';
+
       res.on('data', function (chunk) {
-        str += chunk;
+        body += chunk;
       });
     
       res.on('end', function () {
-        Cache.set(url, str);
-        cb.call(this, undefined, str);
+        that.xmlToJson(body, function(err, json) {
+          if(err || json['error']) {
+            cb.call(this, "Error: Could not parse XML from yr.no");
+            return;
+          }
+          Cache.set(url, JSON.stringify(json));
+          cb.call(this, undefined, json);
+        });
       });
 
       res.on('error', function () {
         cb.call(this, "Could not fetch data from yr.no");
       });
-    
-    }).end();
+    }
   },
 
-  parseUrl: function(url) {
-    return {
-      host: 'www.yr.no',
-      path: url.slice(url.indexOf('/'), url.length)
-    };
+  // Parse XML from yr.no into JSON format
+  // that can be used when rendering the view.
+  xmlToJson: function(xml, cb) {
+    // TODO
+    this.parser.parseString(xml, cb);
   }
 
 };
 
-// Redis
-
+// Redis cache.
+// All entries in cache are set with TTL of minimum 10 min.
 Cache = {
   
   initialize: function() {
@@ -113,11 +144,11 @@ Cache = {
   },
 
   getOrFetch: function(key, cb) {
-    redis.get(key, function(err, value) {
-      if(!value) {
+    redis.get(key, function(err, forecast) {
+      if(!forecast) {
         YR.fetch(key, cb);
       } else {
-        cb.call(this, undefined, value);
+        cb.call(this, undefined, JSON.parse(forecast));
       }
     });
   },
