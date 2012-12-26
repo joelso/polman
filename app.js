@@ -52,7 +52,8 @@ app.get('/weather/widget', function(req, res) {
 
 // Render weather widget as plain HTML
 app.get('/weather', function(req, res) {
-  var weatherUrl = req.query.url;
+  var weatherUrl = req.query.url,
+      limit = req.query.limit || 10;
 
   if(!weatherUrl) {
     return res.send(400);
@@ -60,11 +61,12 @@ app.get('/weather', function(req, res) {
 
   weatherUrl = weatherUrl.replace('http://', '');
 
-  Cache.getOrFetch(weatherUrl, function(err, forecast) {
+  Cache.getOrFetch(weatherUrl, function(err, forecast, fromCache) {
     if(err) {
       res.send(err);
     }
-    res.render('weather', {forecast: forecast, num: 10, moment: moment});
+    res.setHeader("X-Polman-Cache-Hit", fromCache || false);
+    res.render('weather', {forecast: forecast, num: limit, moment: moment});
   });
 });
 
@@ -145,10 +147,12 @@ Cache = {
 
   getOrFetch: function(key, cb) {
     redis.get(key, function(err, forecast) {
-      if(!forecast) {
-        YR.fetch(key, cb);
+      if(forecast) {
+        // Hit from cache
+        cb.call(this, undefined, JSON.parse(forecast), true);
       } else {
-        cb.call(this, undefined, JSON.parse(forecast));
+        // Go ask yr.no about the forecast
+        YR.fetch(key, cb);
       }
     });
   },
