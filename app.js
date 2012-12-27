@@ -28,27 +28,32 @@ app.configure('development', function(){
 });
 
 
-
+//
 // Routes and handlers
+//
+// Home page
 app.get('/', function(req, res){
   res.render('index');
 });
 
+// Create widget
 app.post('/', function(req, res){
   res.send('creating');
 });
 
-// Render weather widget wrapped in
-// javascript document.write
+// Show forecast as javascript widget
 app.get('/weather/widget', function(req, res) {
-  var weatherUrl = req.query.url,
-      type = req.query.type || "overview";
-
-  res.send("Weather as a js widget with document.write etc...");
+    return handleShowForecast(req, res, true);
 });
 
-// Render weather widget as plain HTML
+// Show forecast as plain HTML
 app.get('/weather', function(req, res) {
+  return handleShowForecast(req, res);
+});
+
+// Generic handler of forecast that
+// outputs HTML or widget
+function handleShowForecast(req, res, isWidget) {
   var weatherUrl = req.query.url,
       limit = req.query.limit || 10;
 
@@ -65,21 +70,13 @@ app.get('/weather', function(req, res) {
     res.setHeader("X-Polman-Cache-Hit", fromCache || false);
     res.render('weather', {forecast: forecast, num: limit, moment: moment});
   });
-});
+}
 
 
-
-// Create server
-http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
-  Cache.initialize();
-  YR.initialize();
-});
-
-
-
+//
 // YR client for fetching and parsing data from
 // yr.no's web service.
+//
 YR = {
 
   initialize: function() {
@@ -128,8 +125,10 @@ YR = {
 
 };
 
+
+//
 // Redis cache.
-// All entries in cache are set with TTL of minimum 10 min.
+//
 Cache = {
   
   // Cache TTL/expiry in seconds
@@ -164,3 +163,14 @@ Cache = {
   }
 
 };
+
+
+//
+// Create and start server :)
+//
+http.createServer(app).listen(app.get('port'), function(){
+  console.log("Express server listening on port " + app.get('port'));
+  Cache.initialize();
+  YR.initialize();
+});
+
