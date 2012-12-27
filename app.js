@@ -41,24 +41,27 @@ app.post('/', function(req, res){
   res.send('creating');
 });
 
-// Show forecast as javascript widget
-app.get('/weather/widget', function(req, res) {
-    return handleShowForecast(req, res, true);
+// Show forecast data in JSONP format
+app.get('/api/forecast', function(req, res) {
+    if(!req.query.jsonp) {
+      return res.send(400, "Missig jsonp. Example: ?jsonp=myCallback");
+    }
+    return handleShowForecast(req, res, req.query.jsonp);
 });
 
 // Show forecast as plain HTML
-app.get('/weather', function(req, res) {
+app.get('/forecast', function(req, res) {
   return handleShowForecast(req, res);
 });
 
 // Generic handler of forecast that
 // outputs HTML or widget
-function handleShowForecast(req, res, isWidget) {
+function handleShowForecast(req, res, jsonp) {
   var weatherUrl = req.query.url,
       limit = req.query.limit || 10;
 
   if(!weatherUrl) {
-    return res.send(400);
+    return res.send(400, "Missing url to forecast xml. Example: ?url=http://www.yr.no/place/Norway/Telemark/Sauherad/Gvarv/forecast.xml");
   }
 
   weatherUrl = weatherUrl.replace('http://', '');
@@ -68,7 +71,9 @@ function handleShowForecast(req, res, isWidget) {
       res.send(err);
     }
     res.setHeader("X-Polman-Cache-Hit", fromCache || false);
-    res.render('weather', {forecast: forecast, num: limit, moment: moment});
+    res.setHeader("Content-Type", jsonp ? "application/javascript" : "text/html");
+
+    res.render(jsonp ? 'forecast-jsonp' : 'forecast', {forecast: forecast, num: limit, moment: moment, jsonp: jsonp});
   });
 }
 
@@ -105,6 +110,7 @@ YR = {
             cb.call(this, "Error: Could not parse XML from yr.no");
             return;
           }
+          json = that.tidyJSON(json);
           Cache.set(url, JSON.stringify(json));
           cb.call(this, undefined, json);
         });
@@ -121,6 +127,16 @@ YR = {
   xmlToJson: function(xml, cb) {
     // TODO
     this.parser.parseString(xml, cb);
+  },
+
+  // Tidy JSON object that was automagically
+  // created from XML
+  tidyJSON: function(json) {
+    json.weatherdata.forecast.tabular = json.weatherdata.forecast.tabular.time;
+    if(json.weatherdata.forecast.text) {
+      delete json.weatherdata.forecast.text;
+    }
+    return json;
   }
 
 };
