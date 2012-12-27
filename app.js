@@ -157,8 +157,9 @@ Cache = {
   },
 
   set: function(key, value) {
+    var that = this;
     redis.set(key, value, function() {
-      redis.expire(key, ttl);
+      redis.expire(key, that.ttl);
     });
   }
 
