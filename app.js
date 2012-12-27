@@ -8,9 +8,6 @@ var express = require('express'),
     Cache,
     YR;
 
-// How long we keep weather data in cache
-var WEATHER_CACHE_TTL = 60*15;
-
 var app = express();
 
 app.configure(function(){
@@ -135,6 +132,9 @@ YR = {
 // All entries in cache are set with TTL of minimum 10 min.
 Cache = {
   
+  // Cache TTL/expiry in seconds
+  ttl: 60*15,
+
   initialize: function() {
     if (process.env.REDISTOGO_URL) {
       var rtg = require("url").parse(process.env.REDISTOGO_URL);
@@ -159,7 +159,7 @@ Cache = {
 
   set: function(key, value) {
     redis.set(key, value, function() {
-      redis.expire(key, WEATHER_CACHE_TTL);
+      redis.expire(key, ttl);
     });
   }
 
