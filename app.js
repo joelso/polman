@@ -73,8 +73,6 @@ function handleShowForecast(req, res, jsonp) {
     res.setHeader("X-Polman-Cache-Hit", fromCache || false);
     res.setHeader("Content-Type", jsonp ? "application/javascript" : "text/html");
 
-    console.log(forecast);
-    
     res.render(jsonp ? 'forecast-jsonp' : 'forecast', {forecast: forecast, num: limit, moment: moment, jsonp: jsonp});
   });
 }
