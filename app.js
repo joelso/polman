@@ -77,7 +77,7 @@ function handleShowForecast(req, res, jsonp) {
 
   Cache.getOrFetch(weatherUrl, function(err, forecast, fromCache) {
     if(err) {
-      res.send(err);
+      return res.send(err);
     }
     res.setHeader("X-Polman-Cache-Hit", fromCache || false);
     res.setHeader("Content-Type", jsonp ? "application/javascript" : "text/html");
@@ -149,7 +149,6 @@ YR = {
   // Parse XML from yr.no into JSON format
   // that can be used when rendering the view.
   xmlToJson: function(xml, cb) {
-    // TODO
     this.parser.parseString(xml, cb);
   },
 
