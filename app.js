@@ -38,7 +38,16 @@ app.get('/', function(req, res){
 
 // Create widget
 app.post('/', function(req, res){
-  res.send('creating');
+  var url = req.body.url,
+      num = req.body.num || 10,
+      lang = req.body.lang || 'en';
+
+  if(!url) {
+    return res.render('index', {error: "Please enter a valid URL. Example:<br/>http://www.yr.no/place/Sweden/Stockholm/Stockholm/"});
+  }
+
+  url = tidyUrl(url);
+  res.render('created', {url: url, num: num, lang: lang});
 });
 
 // Show forecast data in JSONP format
@@ -75,6 +84,21 @@ function handleShowForecast(req, res, jsonp) {
 
     res.render(jsonp ? 'forecast-jsonp' : 'forecast', {forecast: forecast, num: limit, moment: moment, jsonp: jsonp});
   });
+}
+
+// Tidies URL that user posted.
+function tidyUrl(url) {
+  if(url.slice(0,7).toLowerCase() !== 'http://') {
+    url = 'http://' + url;
+  }
+
+  if(url.indexOf('.xml') === -1) {
+    if(url.indexOf('/', url.length - 1) === -1) {
+      url += '/';
+    }
+    url += 'forecast.xml';
+  }
+  return url;
 }
 
 

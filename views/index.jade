@@ -6,12 +6,20 @@ block content
     p Customize with options below and copy-paste generated script to your website.
     p Weather forecast from <a href="http://yr.no">yr.no</a>, delivered by the Norwegian Meteorological Institute and the NRK.
 
-    form
+    if locals.error
+      p.error!= error
+
+    form(method="post")
       p
         label Enter URL to forecast
-        input(type="text", placeholder="Ex: http://www.yr.no/place/Sweden/Stockholm/Stockholm/")
-  
+        input(type="text", name="url", placeholder="Ex: http://www.yr.no/place/Sweden/Stockholm/Stockholm/")
+      
       p
+        label Number of rows
+        input(type="text", name="num", value="10")
+
+
+      //p
         label Choose type of forecast
         label.radio
           input(type="radio", name="type", value="overview", checked="checked") 

@@ -24,6 +24,11 @@ h2 {
   font-weight: 700;
   margin: 5px 0 -5px 0;
 }
+h3 {
+  font-size: 18px;
+  font-weight: 400;
+  margin: 20px 0 0 0;
+}
 label {
   font-size: 16px;
 }
@@ -32,6 +37,11 @@ strong {
 }
 p {
   margin: 11.25px 0 22.5px;
+}
+.error {
+  color: red;
+  font-size: 14px;
+  background-color: #ffd6d9;
 }
 body {
   background: #ffffff url(../img/blur.jpg) no-repeat center center;
@@ -63,6 +73,16 @@ section header {
 }
 a {
   color: #00B7FF;
+}
+hr {
+  border-top: 1px solid #bbb;
+  margin: 20px 0;
+}
+code {
+  font-size: 14px;
+  display: block;
+  background-color: #f1f1f1;
+  overflow-x: scroll;
 }
 form p {
   margin: 29.25px 0;
