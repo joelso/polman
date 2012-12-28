@@ -124,6 +124,10 @@ YR = {
     function onResponse(res) {
       var body = '';
 
+      if(res.status >= 400) {
+        cb.call(this, "Could not retriev data from " + url + " - are you sure this is a valid URL?");
+      }
+
       res.on('data', function (chunk) {
         body += chunk;
       });
