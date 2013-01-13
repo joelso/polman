@@ -4,11 +4,11 @@ block content
   section
     h2 All good.
 
-    p Include this script, make sure to alter param value "jsonp" to there name of your callback method:
+    p Include this script in your page. Make sure to alter param value "jsonp" to the name of your callback method:
     code
       | &#60;script src="http://polman.herokuapp.com/api/forecast?url=#{url}&num=#{num}&jsonp=myCallback"&#62;&#60;/script&#62;
 
-    p Here is an example and <a href="/api/forecast?url=#{url}&num=#{num}&jsonp=myCallback">here</a> is what the data looks like.
+    p <a href="/api/forecast?url=#{url}&num=#{num}&jsonp=myCallback" target="_blank">Here</a> is what the JSON data looks like.
 
     hr
 
