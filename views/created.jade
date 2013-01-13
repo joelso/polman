@@ -4,25 +4,15 @@ block content
   section
     h2 All good.
 
-    p There are two options on how to add weather data to your website.
-
-    h3 1 - Javascript widget
-    p Add the following snippet to your page anywhere inside the &#60;body&#62; tag. The widget will be rendered this snippet is added:
-    code
-      | TODO
-
-    hr
-
-    h3 2 - Roll your own widget with JSONP
-    p Include this script, make sure to alter param value "jsonp" to name of your callback method:
+    p Include this script, make sure to alter param value "jsonp" to there name of your callback method:
     code
       | &#60;script src="http://polman.herokuapp.com/api/forecast?url=#{url}&num=#{num}&jsonp=myCallback"&#62;&#60;/script&#62;
 
-    p Now, write your own widget once you got hold of the JSON data. Here is an example and <a href="/api/forecast?url=#{url}&num=#{num}&jsonp=myCallback">here</a> is what the data looks like.
+    p Here is an example and <a href="/api/forecast?url=#{url}&num=#{num}&jsonp=myCallback">here</a> is what the data looks like.
 
     hr
 
-    p Please note that weather data is cached for 10 minutes which means that there is a slight delay compared to yr.no's data. 
+    p Please note that weather data is cached for ~10 minutes which means that there is a slight delay compared to yr.no's data. 
 
     p Weather forecast from yr.no, delivered by the Norwegian Meteorological Institute and the NRK.
 
